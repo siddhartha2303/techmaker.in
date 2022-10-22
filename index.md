@@ -2,7 +2,7 @@ We are first going to setup the infrastructure through Terraform code. Resources
 
 Here we are adding two providers, i.e. Azure DevOps and Azure Resource Manager. We are then going to provide the URL of our Azure DevOps organization and mention the personal access token.
 
-terraform {
+`terraform {
 
   required\_providers {
 
@@ -38,7 +38,7 @@ provider "azurerm" {
 
   features {}
 
-}
+}`
 
 Personal access token on Azure DevOps can be created as below.
 
