@@ -1,6 +1,6 @@
 # AKS Architecture & Concepts
 
-## Build the Infra
+## Build the Infra with Terraform
 
 We are first going to setup the infrastructure through Terraform code. Resources that we will deploy are Storage, Database and Azure Key Vault. First step would be to create **provider.tf** as below.
 
