@@ -2,41 +2,41 @@ We are first going to setup the infrastructure through Terraform code. Resources
 
 Here we are adding two providers, i.e. Azure DevOps and Azure Resource Manager. We are then going to provide the URL of our Azure DevOps organization and mention the personal access token.
 
-terraform {
-
-`  `required\_providers {
-
-`    `azuredevops = {
-
-`      `source  = "microsoft/azuredevops"
-
-`      `version = "0.1.3"
-
-`    `}
-
-`    `azurerm = {
-
-`      `source  = "hashicorp/azurerm"
-
-`      `version = "3.14.0"
-
-`    `}
-
-`  `}
-
-}
+>terraform {
+>
+>  required\_providers {
+>
+>    azuredevops = {
+>
+>      source  = "microsoft/azuredevops"
+>
+>      version = "0.1.3"
+>
+>    }
+>
+>    azurerm = {
+>
+>      source  = "hashicorp/azurerm"
+>
+>      version = "3.14.0"
+>
+>    }
+>
+> }
+>
+>}
 
 provider "azuredevops" {
 
-`  `org\_service\_url       = "https://dev.azure.com/siddhartha2303"
+  org\_service\_url       = "https://dev.azure.com/siddhartha2303"
 
-`  `personal\_access\_token = "personal access token here"
+  personal\_access\_token = "personal access token here"
 
 }
 
 provider "azurerm" {
 
-`  `features {}
+  features {}
 
 }
 
@@ -48,65 +48,65 @@ Next step would be to create **variable.tf** file as blow. This contains all var
 
 variable "rg\_name" {
 
-`  `type        = string
+  type        = string
 
-`  `description = "This is resource group name"
+  description = "This is resource group name"
 
 }
 
 variable "location" {
 
-`  `type        = string
+  type        = string
 
-`  `description = "This is location of resource group"
+  description = "This is location of resource group"
 
 }
 
 variable "environment" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "kv\_name" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "strg\_name" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "strgContainer\_name" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "db\_name" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "dbsrv\_name" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "client\_secret" {
 
-`  `type = string
+  type = string
 
 }
 
 variable "service\_endpoint\_id" {
 
-`  `type = string
+  type = string
 
 }
 
@@ -146,15 +146,15 @@ We then need to start with main.tf Step by step approach would be as below.
 
 resource "azurerm\_resource\_group" "rg" {
 
-`  `name     = var.rg\_name
+  name     = var.rg\_name
 
-`  `location = var.location
+  location = var.location
 
-`  `tags = {
+  tags = {
 
-`    `environment = var.environment
+    environment = var.environment
 
-`  `}
+  }
 
 }
 
@@ -162,13 +162,13 @@ resource "azurerm\_resource\_group" "rg" {
 
 data "azuredevops\_project" "AKS-DEMO" {
 
-`  `name = "AKS-DEMO"
+  name = "AKS-DEMO"
 
 }
 
 data "azuread\_service\_principal" "tfServicepPrincipal" {
 
-`  `display\_name = "tfServicepPrincipal"
+  display\_name = "tfServicepPrincipal"
 
 }
 
@@ -182,75 +182,75 @@ data "azurerm\_client\_config" "current" {}
 
 resource "azurerm\_key\_vault" "kv1" {
 
-`  `depends\_on                 = [azurerm\_resource\_group.rg, module.create\_storage]
+  depends\_on                 = [azurerm\_resource\_group.rg, module.create\_storage]
 
-`  `name                       = var.kv\_name
+  name                       = var.kv\_name
 
-`  `location                   = var.location
+  location                   = var.location
 
-`  `resource\_group\_name        = var.rg\_name
+  resource\_group\_name        = var.rg\_name
 
-`  `tenant\_id                  = data.azurerm\_client\_config.current.tenant\_id
+  tenant\_id                  = data.azurerm\_client\_config.current.tenant\_id
 
-`  `soft\_delete\_retention\_days = 7
+  soft\_delete\_retention\_days = 7
 
-`  `purge\_protection\_enabled   = false
+  purge\_protection\_enabled   = false
 
-`  `sku\_name                   = "standard"
+  sku\_name                   = "standard"
 
-`  `access\_policy {
+  access\_policy {
 
-`    `tenant\_id = data.azurerm\_client\_config.current.tenant\_id
+    tenant\_id = data.azurerm\_client\_config.current.tenant\_id
 
-`    `object\_id = data.azurerm\_client\_config.current.object\_id
+    object\_id = data.azurerm\_client\_config.current.object\_id
 
-`    `//application\_id = data.azuread\_service\_principal.tfServicepPrincipal.application\_id
+    //application\_id = data.azuread\_service\_principal.tfServicepPrincipal.application\_id
 
-`    `key\_permissions = [
+    key\_permissions = [
 
-`      `"Get",
+      "Get",
 
-`    `]
+    ]
 
-`    `secret\_permissions = [
+    secret\_permissions = [
 
-`      `"Get", "Backup", "Delete", "List", "Purge", "Recover", "Restore", "Set",
+      "Get", "Backup", "Delete", "List", "Purge", "Recover", "Restore", "Set",
 
-`    `]
+    ]
 
-`    `storage\_permissions = [
+    storage\_permissions = [
 
-`      `"Get",
+      "Get",
 
-`    `]
+    ]
 
-`  `}
+  }
 
-`  `access\_policy {
+  access\_policy {
 
-`    `tenant\_id = data.azurerm\_client\_config.current.tenant\_id
+    tenant\_id = data.azurerm\_client\_config.current.tenant\_id
 
-`    `object\_id = data.azuread\_service\_principal.tfServicepPrincipal.object\_id
+    object\_id = data.azuread\_service\_principal.tfServicepPrincipal.object\_id
 
-`    `key\_permissions = [
+    key\_permissions = [
 
-`      `"Get", "List"
+      "Get", "List"
 
-`    `]
+    ]
 
-`    `secret\_permissions = [
+    secret\_permissions = [
 
-`      `"Get", "Backup", "Delete", "List", "Purge", "Recover", "Restore", "Set",
+      "Get", "Backup", "Delete", "List", "Purge", "Recover", "Restore", "Set",
 
-`    `]
+    ]
 
-`    `storage\_permissions = [
+    storage\_permissions = [
 
-`      `"Get",
+      "Get",
 
-`    `]
+    ]
 
-`  `}
+  }
 
 }
 
@@ -258,15 +258,15 @@ resource "azurerm\_key\_vault" "kv1" {
 
 module "create\_storage" {
 
-`  `source             = "../Modules/storage"
+  source             = "../Modules/storage"
 
-`  `rg\_name            = var.rg\_name
+  rg\_name            = var.rg\_name
 
-`  `strg\_name          = var.strg\_name
+  strg\_name          = var.strg\_name
 
-`  `strgContainer\_name = var.strgContainer\_name
+  strgContainer\_name = var.strgContainer\_name
 
-`  `depends\_on         = [azurerm\_resource\_group.rg]
+  depends\_on         = [azurerm\_resource\_group.rg]
 
 }
 
@@ -274,95 +274,95 @@ module "create\_storage" {
 
 resource "azurerm\_key\_vault\_secret" "client-id" {
 
-`  `name         = "client-id"
+  name         = "client-id"
 
-`  `value        = data.azuread\_service\_principal.tfServicepPrincipal.application\_id
+  value        = data.azuread\_service\_principal.tfServicepPrincipal.application\_id
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
-`  `]
+  ]
 
 }
 
 resource "azurerm\_key\_vault\_secret" "client-secret" {
 
-`  `name         = "client-secret"
+  name         = "client-secret"
 
-`  `value        = var.client\_secret
+  value        = var.client\_secret
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
-`  `]
+  ]
 
 }
 
 resource "azurerm\_key\_vault\_secret" "TenantID" {
 
-`  `name         = "TenantID"
+  name         = "TenantID"
 
-`  `value        = data.azurerm\_subscription.subscriptionID.tenant\_id
+  value        = data.azurerm\_subscription.subscriptionID.tenant\_id
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
-`  `]
+  ]
 
 }
 
 resource "azurerm\_key\_vault\_secret" "SubscriptionID" {
 
-`  `name         = "SubscriptionID"
+  name         = "SubscriptionID"
 
-`  `value        = data.azurerm\_subscription.subscriptionID.subscription\_id
+  value        = data.azurerm\_subscription.subscriptionID.subscription\_id
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
-`  `]
+  ]
 
 }
 
 resource "azurerm\_key\_vault\_secret" "strgKey1" {
 
-`  `name         = "strgKey1"
+  name         = "strgKey1"
 
-`  `value        = module.create\_storage.storage\_primary\_access\_key
+  value        = module.create\_storage.storage\_primary\_access\_key
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
-`  `]
+  ]
 
 }
 
 resource "azurerm\_key\_vault\_secret" "strgKey2" {
 
-`  `name         = "strgKey2"
+  name         = "strgKey2"
 
-`  `value        = module.create\_storage.storage\_secondary\_access\_key
+  value        = module.create\_storage.storage\_secondary\_access\_key
 
-`  `key\_vault\_id = azurerm\_key\_vault.kv1.id
+  key\_vault\_id = azurerm\_key\_vault.kv1.id
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `module.create\_storage
+    module.create\_storage
 
 ]
 
@@ -373,21 +373,21 @@ resource "azurerm\_key\_vault\_secret" "strgKey2" {
 
 module "create\_db" {
 
-`  `source             = "../Modules/db"
+  source             = "../Modules/db"
 
-`  `rg\_name            = var.rg\_name
+  rg\_name            = var.rg\_name
 
-`  `keyvault\_name      = var.kv\_name
+  keyvault\_name      = var.kv\_name
 
-`  `sql\_server\_name    = var.dbsrv\_name
+  sql\_server\_name    = var.dbsrv\_name
 
-`  `sql\_database\_name  = var.db\_name
+  sql\_database\_name  = var.db\_name
 
-`  `sql\_admin\_login    = var.dbsrv\_name
+  sql\_admin\_login    = var.dbsrv\_name
 
-`  `sql\_admin\_password = "India@123"
+  sql\_admin\_password = "India@123"
 
-`  `depends\_on         = [azurerm\_resource\_group.rg, azurerm\_key\_vault.kv1]
+  depends\_on         = [azurerm\_resource\_group.rg, azurerm\_key\_vault.kv1]
 
 }
 
@@ -395,73 +395,73 @@ module "create\_db" {
 
 resource "azuredevops\_variable\_group" "azdevops-variable-group" {
 
-`  `depends\_on = [
+  depends\_on = [
 
-`    `azurerm\_key\_vault\_secret.client-id,
+    azurerm\_key\_vault\_secret.client-id,
 
-`    `azurerm\_key\_vault\_secret.client-secret,
+    azurerm\_key\_vault\_secret.client-secret,
 
-`    `azurerm\_key\_vault\_secret.TenantID,
+    azurerm\_key\_vault\_secret.TenantID,
 
-`    `azurerm\_key\_vault\_secret.SubscriptionID,
+    azurerm\_key\_vault\_secret.SubscriptionID,
 
-`    `azurerm\_key\_vault\_secret.strgKey1,
+    azurerm\_key\_vault\_secret.strgKey1,
 
-`    `azurerm\_key\_vault\_secret.strgKey2,
+    azurerm\_key\_vault\_secret.strgKey2,
 
-`  `]
+  ]
 
-`  `project\_id   = data.azuredevops\_project.AKS-DEMO.project\_id
+  project\_id   = data.azuredevops\_project.AKS-DEMO.project\_id
 
-`  `name         = "azkeys"
+  name         = "azkeys"
 
-`  `description  = "key vault keys"
+  description  = "key vault keys"
 
-`  `allow\_access = true
+  allow\_access = true
 
-`  `key\_vault {
+  key\_vault {
 
-`    `name                = var.kv\_name
+    name                = var.kv\_name
 
-`    `service\_endpoint\_id = var.service\_endpoint\_id
+    service\_endpoint\_id = var.service\_endpoint\_id
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "client-secret"
+    name = "client-secret"
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "client-id"
+    name = "client-id"
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "TenantID"
+    name = "TenantID"
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "SubscriptionID"
+    name = "SubscriptionID"
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "strgKey1"
+    name = "strgKey1"
 
-`  `}
+  }
 
-`  `variable {
+  variable {
 
-`    `name = "strgKey2"
+    name = "strgKey2"
 
-`  `}
+  }
 
 }
 
