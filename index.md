@@ -26,7 +26,7 @@ terraform {
   }
 
 }
-```
+
 
 provider "azuredevops" {
 
@@ -41,6 +41,7 @@ provider "azurerm" {
   features {}
 
 }
+```
 
 Personal access token on Azure DevOps can be created as below.
 
@@ -48,6 +49,7 @@ Personal access token on Azure DevOps can be created as below.
 
 Next step would be to create **variable.tf** file as blow. This contains all variables to be called inside **main.tf**
 
+```
 variable "rg\_name" {
 
   type        = string
@@ -111,9 +113,11 @@ variable "service\_endpoint\_id" {
   type = string
 
 }
+```
 
 Below **terraform.tfvars** file contains the values for the variables that we defined above. Fill **client\_secret** and **service\_endpoint\_id**
 
+```
 strg\_name          = "tfstorageactdemo10"
 
 strgContainer\_name = "tfstoragecontainer"
@@ -133,6 +137,7 @@ dbsrv\_name         = "tfdemodbsrv006"
 client\_secret      = "place your client secret here" 
 
 service\_endpoint\_id = "your ADO service endpoint ID"
+```
 
 Service endpoint ID can be found in Azure DevOps as below. If don’t exist then we need to create one. This is how Azure DevOps is integrated with Azure subscription. 
 
@@ -144,8 +149,9 @@ And for **client\_secret**, you need to create a Service Principal in Azure.
 
 We then need to start with main.tf Step by step approach would be as below.
 
-1. Create a resource group
+* Create a resource group
 
+```
 resource "azurerm\_resource\_group" "rg" {
 
   name     = var.rg\_name
@@ -159,9 +165,11 @@ resource "azurerm\_resource\_group" "rg" {
   }
 
 }
+```
 
-2. Get the details for Azure Dev Ops, current subscription and Service Principal
+* Get the details for Azure Dev Ops, current subscription and Service Principal
 
+```
 data "azuredevops\_project" "AKS-DEMO" {
 
   name = "AKS-DEMO"
@@ -179,9 +187,11 @@ data "azurerm\_subscription" "subscriptionID" {
 }
 
 data "azurerm\_client\_config" "current" {}
+```
 
-3. Create Key Vault and assign Access Policy to Service Principal
+* Create Key Vault and assign Access Policy to Service Principal
 
+```
 resource "azurerm\_key\_vault" "kv1" {
 
   depends\_on                 = [azurerm\_resource\_group.rg, module.create\_storage]
@@ -255,9 +265,11 @@ resource "azurerm\_key\_vault" "kv1" {
   }
 
 }
+```
 
-4. Call the Storage module and provide the parameters
+* Call the Storage module and provide the parameters
 
+```
 module "create\_storage" {
 
   source             = "../Modules/storage"
@@ -271,9 +283,11 @@ module "create\_storage" {
   depends\_on         = [azurerm\_resource\_group.rg]
 
 }
+```
 
-5. Once these resources will be created Terraform will proceed to creating the Secrets in KeyVault. You can see in below code it’s dependent on creation of storage module **“depends\_on = [module.create\_storage]”** as storage keys will be available once it’s created.
+* Once these resources will be created Terraform will proceed to creating the Secrets in KeyVault. You can see in below code it’s dependent on creation of storage module **“depends\_on = [module.create\_storage]”** as storage keys will be available once it’s created.
 
+```
 resource "azurerm\_key\_vault\_secret" "client-id" {
 
   name         = "client-id"
@@ -369,10 +383,11 @@ resource "azurerm\_key\_vault\_secret" "strgKey2" {
 ]
 
 }
+```
 
+* Next Terraform will proceed with SQL database creation. And Key Vault should be ready prior to this as Database is going to store it’s connection string into it.
 
-6. Next Terraform will proceed with SQL database creation. And Key Vault should be ready prior to this as Database is going to store it’s connection string into it.
-
+```
 module "create\_db" {
 
   source             = "../Modules/db"
@@ -392,9 +407,11 @@ module "create\_db" {
   depends\_on         = [azurerm\_resource\_group.rg, azurerm\_key\_vault.kv1]
 
 }
+```
 
-7. Then it will configure Azure DevOps to link Azure Key Vault to get the secrets against each variables.
+* Then it will configure Azure DevOps to link Azure Key Vault to get the secrets against each variables.
 
+```
 resource "azuredevops\_variable\_group" "azdevops-variable-group" {
 
   depends\_on = [
@@ -466,6 +483,6 @@ resource "azuredevops\_variable\_group" "azdevops-variable-group" {
   }
 
 }
-
+```
 
 This will complete the infrastructure that we will consume as we proceed with Azure Kubernetes Services through DevOps CICD pipelines
