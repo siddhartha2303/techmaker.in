@@ -6,7 +6,7 @@ We are first going to setup the infrastructure through Terraform code. Resources
 
 Here we are adding two providers, i.e. Azure DevOps and Azure Resource Manager. We are then going to provide the URL of our Azure DevOps organization and mention the personal access token.
 
-```json
+```
 terraform {
 
   required\_providers {
@@ -53,7 +53,7 @@ Personal access token on Azure DevOps can be created as below.
 
 Next step would be to create **variable.tf** file as blow. This contains all variables to be called inside **main.tf**
 
-```terraform
+```
 variable "rg\_name" {
 
   type        = string
@@ -121,7 +121,7 @@ variable "service\_endpoint\_id" {
 
 Below **terraform.tfvars** file contains the values for the variables that we defined above. Fill **client\_secret** and **service\_endpoint\_id**
 
-```terraform
+```
 strg\_name          = "tfstorageactdemo10"
 
 strgContainer\_name = "tfstoragecontainer"
@@ -155,7 +155,7 @@ We then need to start with main.tf Step by step approach would be as below.
 
 * Create a resource group
 
-```terraform
+```
 resource "azurerm\_resource\_group" "rg" {
 
   name     = var.rg\_name
@@ -173,7 +173,7 @@ resource "azurerm\_resource\_group" "rg" {
 
 * Get the details for Azure Dev Ops, current subscription and Service Principal
 
-```terraform
+```
 data "azuredevops\_project" "AKS-DEMO" {
 
   name = "AKS-DEMO"
@@ -195,7 +195,7 @@ data "azurerm\_client\_config" "current" {}
 
 * Create Key Vault and assign Access Policy to Service Principal
 
-```terraform
+```
 resource "azurerm\_key\_vault" "kv1" {
 
   depends\_on                 = [azurerm\_resource\_group.rg, module.create\_storage]
@@ -273,7 +273,7 @@ resource "azurerm\_key\_vault" "kv1" {
 
 * Call the Storage module and provide the parameters
 
-```terraform
+```
 module "create\_storage" {
 
   source             = "../Modules/storage"
@@ -291,7 +291,7 @@ module "create\_storage" {
 
 * Once these resources will be created Terraform will proceed to creating the Secrets in KeyVault. You can see in below code it’s dependent on creation of storage module **“depends\_on = [module.create\_storage]”** as storage keys will be available once it’s created.
 
-```terraform
+```
 resource "azurerm\_key\_vault\_secret" "client-id" {
 
   name         = "client-id"
@@ -391,7 +391,7 @@ resource "azurerm\_key\_vault\_secret" "strgKey2" {
 
 * Next Terraform will proceed with SQL database creation. And Key Vault should be ready prior to this as Database is going to store it’s connection string into it.
 
-```terraform
+```
 module "create\_db" {
 
   source             = "../Modules/db"
@@ -415,7 +415,7 @@ module "create\_db" {
 
 * Then it will configure Azure DevOps to link Azure Key Vault to get the secrets against each variables.
 
-```terraform
+```
 resource "azuredevops\_variable\_group" "azdevops-variable-group" {
 
   depends\_on = [
