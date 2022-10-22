@@ -41,10 +41,15 @@ Next step would be to create **variable.tf** file as blow. This contains all var
 
 >variable "rg\_name" {
 >  type        = string
+
 >  description = "This is resource group name"
+
 >}
+
 >variable "location" {
+
 >  type        = string
+
 >  description = "This is location of resource group"
 >}
 >variable "environment" {
