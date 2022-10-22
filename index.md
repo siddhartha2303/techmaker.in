@@ -142,7 +142,7 @@ And for **client\_secret**, you need to create a Service Principal in Azure.
 
 We then need to start with main.tf Step by step approach would be as below.
 
-1. Create a resource group
+* Create a resource group
 
 >resource "azurerm\_resource\_group" "rg" {
 >
@@ -158,7 +158,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >
 >}
 
-2. Get the details for Azure Dev Ops, current subscription and Service Principal
+* Get the details for Azure Dev Ops, current subscription and Service Principal
 
 >data "azuredevops\_project" "AKS-DEMO" {
 >
@@ -178,7 +178,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >
 >data "azurerm\_client\_config" "current" {}
 
-3. Create Key Vault and assign Access Policy to Service Principal
+* Create Key Vault and assign Access Policy to Service Principal
 
 >resource "azurerm\_key\_vault" "kv1" {
 >
@@ -254,7 +254,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >
 >}
 
-4. Call the Storage module and provide the parameters
+* Call the Storage module and provide the parameters
 
 >module "create\_storage" {
 >
@@ -270,7 +270,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >
 >}
 
-5. Once these resources will be created Terraform will proceed to creating the Secrets in KeyVault. You can see in below code it’s dependent on creation of storage module **“depends\_on = [module.create\_storage]”** as storage keys will be available once it’s created.
+* Once these resources will be created Terraform will proceed to creating the Secrets in KeyVault. You can see in below code it’s dependent on creation of storage module **“depends\_on = [module.create\_storage]”** as storage keys will be available once it’s created.
 
 >resource "azurerm\_key\_vault\_secret" "client-id" {
 >
@@ -369,7 +369,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >}
 
 
-6. Next Terraform will proceed with SQL database creation. And Key Vault should be ready prior to this as Database is going to store it’s connection string into it.
+* Next Terraform will proceed with SQL database creation. And Key Vault should be ready prior to this as Database is going to store it’s connection string into it.
 
 >module "create\_db" {
 >
@@ -391,7 +391,7 @@ We then need to start with main.tf Step by step approach would be as below.
 >
 >}
 
-7. Then it will configure Azure DevOps to link Azure Key Vault to get the secrets against each variables.
+* Then it will configure Azure DevOps to link Azure Key Vault to get the secrets against each variables.
 
 >resource "azuredevops\_variable\_group" "azdevops-variable-group" {
 >
